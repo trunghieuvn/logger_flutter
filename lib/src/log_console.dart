@@ -24,6 +24,10 @@ class LogConsole extends StatefulWidget {
     });
   }
 
+  static void clear() {
+    _outputEventBuffer.clear();
+  }
+
   @override
   _LogConsoleState createState() => _LogConsoleState();
 }
@@ -47,7 +51,7 @@ class _LogConsoleState extends State<LogConsole> {
   var _filterController = TextEditingController();
 
   Level _filterLevel = Level.verbose;
-  double _logFontSize = 14;
+  double _logFontSize = 16;
 
   var _currentId = 0;
   bool _scrollListenerEnabled = true;
@@ -123,32 +127,28 @@ class _LogConsoleState extends State<LogConsole> {
               brightness: Brightness.light,
               accentColor: Colors.lightBlueAccent,
             ),
-      home: Scaffold(
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              _buildTopBar(),
-              Expanded(
-                child: _buildLogContent(),
-              ),
-              _buildBottomBar(),
-            ],
+      home: Container(
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.grey),
+        child: Scaffold(
+          backgroundColor: Colors.grey,
+          body: SafeArea(
+            child: _buildLogContent(),
           ),
-        ),
-        floatingActionButton: AnimatedOpacity(
-          opacity: _followBottom ? 0 : 1,
-          duration: Duration(milliseconds: 150),
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 60),
-            child: FloatingActionButton(
-              mini: true,
-              clipBehavior: Clip.antiAlias,
-              child: Icon(
-                Icons.arrow_downward,
-                color: widget.dark ? Colors.white : Colors.lightBlue[900],
+          floatingActionButton: AnimatedOpacity(
+            opacity: _followBottom ? 0 : 1,
+            duration: Duration(milliseconds: 150),
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 60),
+              child: FloatingActionButton(
+                mini: true,
+                clipBehavior: Clip.antiAlias,
+                child: Icon(
+                  Icons.arrow_downward,
+                  color: widget.dark ? Colors.white : Colors.lightBlue[900],
+                ),
+                onPressed: _scrollToBottom,
               ),
-              onPressed: _scrollToBottom,
             ),
           ),
         ),
@@ -157,27 +157,35 @@ class _LogConsoleState extends State<LogConsole> {
   }
 
   Widget _buildLogContent() {
-    return Container(
-      color: widget.dark ? Colors.black : Colors.grey[150],
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SizedBox(
-          width: 1600,
-          child: ListView.builder(
-            shrinkWrap: true,
-            controller: _scrollController,
-            itemBuilder: (context, index) {
-              var logEntry = _filteredBuffer[index];
-              return Text.rich(
-                logEntry.span,
-                key: Key(logEntry.id.toString()),
-                style: TextStyle(fontSize: _logFontSize),
-              );
-            },
-            itemCount: _filteredBuffer.length,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          padding: EdgeInsets.all(10),
+          height: constraints.maxHeight,
+          decoration: BoxDecoration(
+              color: widget.dark ? Colors.black : Colors.grey[150],
+              borderRadius: BorderRadius.circular(10)),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: 1600,
+              child: ListView.builder(
+                shrinkWrap: true,
+                controller: _scrollController,
+                itemBuilder: (context, index) {
+                  var logEntry = _filteredBuffer[index];
+                  return Text.rich(
+                    logEntry.span,
+                    key: Key(logEntry.id.toString()),
+                    style: TextStyle(fontSize: _logFontSize),
+                  );
+                },
+                itemCount: _filteredBuffer.length,
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
