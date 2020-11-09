@@ -11,13 +11,13 @@ class LogConsole extends StatefulWidget {
   LogConsole({this.dark = false, this.showCloseButton = false})
       : assert(_initialized, "Please call LogConsole.init() first.");
 
-  static void init({int bufferSize = 20}) {
+  static void init({int bufferSize}) {
     if (_initialized) return;
 
     _bufferSize = bufferSize;
     _initialized = true;
     Logger.addOutputListener((e) {
-      if (_outputEventBuffer.length == bufferSize) {
+      if (bufferSize != null && _outputEventBuffer.length == bufferSize) {
         _outputEventBuffer.removeFirst();
       }
       _outputEventBuffer.add(e);
@@ -62,7 +62,7 @@ class _LogConsoleState extends State<LogConsole> {
     super.initState();
 
     _callback = (e) {
-      if (_renderedBuffer.length == _bufferSize) {
+      if (_bufferSize != null && _renderedBuffer.length == _bufferSize) {
         _renderedBuffer.removeFirst();
       }
 
