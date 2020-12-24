@@ -177,7 +177,7 @@ class _LogConsoleState extends State<LogConsole> {
                   return Text.rich(
                     logEntry.span,
                     key: Key(logEntry.id.toString()),
-                    style: TextStyle(fontSize: _logFontSize),
+                    style: GoogleFonts.lato(fontSize: _logFontSize),
                   );
                 },
                 itemCount: _filteredBuffer.length,
