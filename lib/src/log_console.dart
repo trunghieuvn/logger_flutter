@@ -7,8 +7,11 @@ bool _initialized = false;
 class LogConsole extends StatefulWidget {
   final bool dark;
   final bool showCloseButton;
+  final bool borderEnable;
+  final EdgeInsetsGeometry padding;
+  final Color backgroundColor;
 
-  LogConsole({this.dark = false, this.showCloseButton = false})
+  LogConsole({this.dark = false, this.showCloseButton = false, this.borderEnable = true, this.padding, this.backgroundColor})
       : assert(_initialized, "Please call LogConsole.init() first.");
 
   static void init({int bufferSize}) {
@@ -118,20 +121,11 @@ class _LogConsoleState extends State<LogConsole> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: widget.dark
-          ? ThemeData(
-              brightness: Brightness.dark,
-              accentColor: Colors.blueGrey,
-            )
-          : ThemeData(
-              brightness: Brightness.light,
-              accentColor: Colors.lightBlueAccent,
-            ),
       home: Container(
-        padding: EdgeInsets.all(10),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.grey),
+        padding: widget.borderEnable ? EdgeInsets.all(10) : null,
+        decoration: widget.borderEnable ? BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.grey) : null,
         child: Scaffold(
-          backgroundColor: Colors.grey,
+          backgroundColor: widget.backgroundColor,
           body: SafeArea(
             child: _buildLogContent(),
           ),
@@ -139,7 +133,7 @@ class _LogConsoleState extends State<LogConsole> {
             opacity: _followBottom ? 0 : 1,
             duration: Duration(milliseconds: 150),
             child: Padding(
-              padding: EdgeInsets.only(bottom: 60),
+              padding: EdgeInsets.only(bottom: 20),
               child: FloatingActionButton(
                 mini: true,
                 clipBehavior: Clip.antiAlias,
@@ -160,11 +154,11 @@ class _LogConsoleState extends State<LogConsole> {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Container(
-          padding: EdgeInsets.all(10),
+          padding: widget.borderEnable ? EdgeInsets.all(10) : widget.padding,
           height: constraints.maxHeight,
-          decoration: BoxDecoration(
-              color: widget.dark ? Colors.black : Colors.grey[150],
-              borderRadius: BorderRadius.circular(10)),
+          decoration: widget.borderEnable ? BoxDecoration(
+              color: widget.backgroundColor,
+              borderRadius: BorderRadius.circular(10)) : null,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: SizedBox(
