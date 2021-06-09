@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 
 import 'package:logger/logger.dart';
 import 'package:logger_flutter/logger_flutter.dart';
 
 void main() {
   runApp(MyApp());
-  log();
+}
+
+class MyFilter extends LogFilter {
+  @override
+  bool shouldLog(LogEvent event) {
+    return true;
+  }
 }
 
 var logger = Logger(
-  printer: PrettyPrinter(),
+  filter: MyFilter(),
+  printer: CustomPrinter(lineLength: 20),
 );
 
 var loggerNoStack = Logger(
@@ -18,31 +24,42 @@ var loggerNoStack = Logger(
 );
 
 void log() {
-  logger.d("Log message with 2 methods");
-
-  loggerNoStack.i("Info message");
-
-  loggerNoStack.w("Just a warning!");
-
-  logger.e("Error! Something bad happened", "Test Error");
-
-  loggerNoStack.v({"key": 5, "value": "something"});
-
-  Future.delayed(Duration(seconds: 5), log);
+  logger.d("Log message");
 }
 
 class MyApp extends StatelessWidget {
+  void showDialogConsole(context) {
+    showDialog(context: context, builder: (context) => LogConsole());
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: LogConsoleOnShake(
-          dark: true,
-          child: Center(
-            child: Text("Shake Phone to open Console."),
-          ),
-        ),
+      home: Builder(
+        builder: (buildContext) {
+          return Scaffold(
+            body: Column(
+              children: [
+                Center(
+                  child: InkWell(
+                    onTap: log,
+                    child: Icon(Icons.access_alarm),
+                  ),
+                ),
+                Center(
+                  child: InkWell(
+                    onTap: () => showDialogConsole(buildContext),
+                    child: Icon(Icons.share),
+                  ),
+                ),
+                Expanded(
+                  child: LogConsole(isRoot: true),
+                )
+              ],
+            ),
+          );
+        },
       ),
     );
   }

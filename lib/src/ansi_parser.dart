@@ -3,21 +3,19 @@ import 'package:flutter/material.dart';
 class AnsiParser {
   static const TEXT = 0, BRACKET = 1, CODE = 2;
 
-  final bool dark;
-
-  AnsiParser(this.dark);
-
-  Color foreground;
-  Color background;
-  List<TextSpan> spans;
+  late bool dark;
+  Color? foreground;
+  Color? background;
+  late List<TextSpan> spans;
+  AnsiParser({this.dark = false});
 
   void parse(String s) {
     spans = [];
     var state = TEXT;
-    StringBuffer buffer;
+    StringBuffer? buffer;
     var text = StringBuffer();
     var code = 0;
-    List<int> codes;
+    List<int>? codes;
 
     for (var i = 0, n = s.length; i < n; i++) {
       var c = s[i];
@@ -35,7 +33,7 @@ class AnsiParser {
           break;
 
         case BRACKET:
-          buffer.write(c);
+          buffer!.write(c);
           if (c == '[') {
             state = CODE;
           } else {
@@ -45,13 +43,13 @@ class AnsiParser {
           break;
 
         case CODE:
-          buffer.write(c);
+          buffer!.write(c);
           var codeUnit = c.codeUnitAt(0);
           if (codeUnit >= 48 && codeUnit <= 57) {
             code = code * 10 + codeUnit - 48;
             continue;
           } else if (c == ';') {
-            codes.add(code);
+            codes!.add(code);
             code = 0;
             continue;
           } else {
@@ -61,7 +59,7 @@ class AnsiParser {
             }
             state = TEXT;
             if (c == 'm') {
-              codes.add(code);
+              codes!.add(code);
               handleCodes(codes);
             } else {
               text.write(buffer);
@@ -75,8 +73,9 @@ class AnsiParser {
     spans.add(createSpan(text.toString()));
   }
 
-  void handleCodes(List<int> codes) {
-    if (codes.isEmpty) {
+  void handleCodes(List<int>? codes) {
+    if (codes == null || codes.isEmpty) {
+      codes = [];
       codes.add(0);
     }
 
@@ -99,7 +98,7 @@ class AnsiParser {
     }
   }
 
-  Color getColor(int colorCode, bool foreground) {
+  Color? getColor(int? colorCode, bool foreground) {
     switch (colorCode) {
       case 0:
         return foreground ? Colors.black : Colors.transparent;
